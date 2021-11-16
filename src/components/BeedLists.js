@@ -37,6 +37,7 @@ class BreedList extends React.Component {
           display: "flex",
         }}
       >
+			<div></div>
         <div class="loader"></div>
 
         <ul>
