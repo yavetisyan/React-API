@@ -1,4 +1,5 @@
 import React from "react";
+import { v4 as uuidv4 } from "uuid";
 
 class BreedList extends React.Component {
   state = {
@@ -8,10 +9,18 @@ class BreedList extends React.Component {
   getBreeds = async () => {
     const responce = await fetch("https://dog.ceo/api/breeds/list/all");
     const data = await responce.json();
-    const breedListArr = Object.keys(data.message);
-
     this.setState({
-      breedList: breedListArr,
+      breedList: data.message,
+    });
+  };
+
+  imgSrc = async (breed) => {
+    const response = await fetch(
+      `https://dog.ceo/api/breed/${breed}/images/random`
+    );
+    const data = await response.json();
+    this.setState({
+      src: data.message,
     });
   };
 
@@ -19,16 +28,41 @@ class BreedList extends React.Component {
     this.getBreeds();
   }
 
-	
   render() {
+    const breedListArr = Object.keys(this.state.breedList);
+
     return (
-      <div>
-        <div> this is breed BeedLists</div>
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <div class="loader"></div>
+
         <ul>
-          {this.state.breedList.map((breed) => (
-            <li>{breed}</li>
-          ))}
+          {breedListArr.map((breed) => {
+            return (
+              <li
+                key={uuidv4()}
+                onClick={() => this.imgSrc(breed)}
+                style={{
+                  margin: 10,
+                  cursor: "pointer",
+                  color: this.state.breedList[breed].length ? "red" : "green",
+                }}
+              >
+                {breed}
+              </li>
+            );
+          })}
         </ul>
+        {this.state.src === "" ? null : (
+          <img
+            src={this.state.src}
+            style={{ width: 300, height: 300, marginTop: 30 }}
+            alt={"Dog Pic"}
+          />
+        )}
       </div>
     );
   }
