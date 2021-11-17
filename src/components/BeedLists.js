@@ -9,6 +9,10 @@ import React from "react";
 //import { v4 as uuidv4 } from "uuid";
 //import "./BreedList.css";
 import CircularProgress from "@mui/material/CircularProgress";
+import Card from "@mui/material/Card";
+import Typography from "@mui/material/Typography";
+import CardMedia from "@mui/material/CardMedia";
+import CardContent from "@mui/material/CardContent";
 
 class BreedList extends React.Component {
   state = {
@@ -16,6 +20,7 @@ class BreedList extends React.Component {
     src: "",
     isLoading: false,
     isOpen: false,
+    selectedBreedName: "",
   };
 
   getBreeds = async () => {
@@ -31,16 +36,17 @@ class BreedList extends React.Component {
   };
 
   onListItemButtonClick = async (breed) => {
-    //const response = await fetch(
-    //  `https://dog.ceo/api/breed/${breed}/images/random`
-    //);
-    //const data = await response.json();
-    //this.setState({
-    //  src: data.message,
-    //});
+    const response = await fetch(
+      `https://dog.ceo/api/breed/${breed}/images/random`
+    );
+    const data = await response.json();
+    this.setState({
+      src: data.message,
+    });
 
     this.setState({
       isOpen: !this.state.isOpen,
+      selectedBreedName: breed,
     });
   };
 
@@ -108,11 +114,25 @@ class BreedList extends React.Component {
         )}
 
         {this.state.src === "" ? null : (
-          <img
-            src={this.state.src}
-            style={{ maxWidth: "100%", height: 500, marginTop: 30 }}
-            alt={"Dog Pic"}
-          />
+          //{/*<imgsrc={this.state.src}style={{ maxWidth: "100%", height: 500, marginTop: 30 }}alt={"Dog Pic"}/>*/}
+          <Card sx={{ maxWidth: 345, maxHeight: 300 , marginTop:10, position:'fixed', left:300}}>
+            <CardMedia
+              component="img"
+              height="200"
+              image={this.state.src}
+              alt="green iguana"
+            />
+            <CardContent>
+              <Typography
+                gutterBottom
+                variant="h5"
+                component="div"
+                style={{ textAlign: "center" }}
+              >
+                {this.state.selectedBreedName}
+              </Typography>
+            </CardContent>
+          </Card>
         )}
       </div>
     );
