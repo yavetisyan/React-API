@@ -1,129 +1,142 @@
 import {
-  Collapse,
+  Card,
+  CardContent,
   List,
   ListItemButton,
   ListItemText,
-  TextField,
+  Typography,
 } from "@mui/material";
-import React from "react";
-//import { v4 as uuidv4 } from "uuid";
-//import "./BreedList.css";
-import CircularProgress from "@mui/material/CircularProgress";
-import Card from "@mui/material/Card";
-import Typography from "@mui/material/Typography";
 import CardMedia from "@mui/material/CardMedia";
-import CardContent from "@mui/material/CardContent";
+import React, { useEffect, useState } from "react";
+import "./BreedList.css";
+import TextField from "@mui/material/TextField";
+import Collapse from "@mui/material/Collapse";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import ExpandLess from "@mui/icons-material/ExpandLess";
 
-class BreedList extends React.Component {
-  state = {
-    breedList: [],
-    src: "",
-    isLoading: false,
-    isOpen: false,
-    selectedBreedName: "",
-    searchText: "",
-  };
+function BreedList() {
+  const [breedlist, setBreedlist] = useState([]);
+  const [src, setSrc] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedBreedName, setSelectedBreedName] = useState("");
+  const [selectedSubbreedName, setSelectedSubbreedName] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [isOpenData, setIsOpenData] = useState({});
 
-  getBreeds = async () => {
-    this.setState({
-      isLoading: true,
-    });
-    const responce = await fetch("https://dog.ceo/api/breeds/list/all");
-    const data = await responce.json();
-    this.setState({
-      breedList: data.message,
-      isLoading: false,
-    });
-  };
-
-  onListItemButtonClick = async (breed) => {
-    const response = await fetch(
-      `https://dog.ceo/api/breed/${breed}/images/random`
-    );
+  const getBreeds = async () => {
+    const response = await fetch(`https://dog.ceo/api/breeds/list/all`);
     const data = await response.json();
-    this.setState({
-      src: data.message,
-    });
+    setBreedlist(data.message);
+    setIsLoading(false);
+  };
 
-    this.setState({
-      isOpen: !this.state.isOpen,
-      selectedBreedName: breed,
+  useEffect(() => {
+    getBreeds();
+  }, []);
+
+  const onItemClick = (breed) => {
+    setIsOpenData({
+      ...isOpenData,
+      [breed]: !isOpenData[breed],
     });
   };
 
-  componentDidMount() {
-    this.getBreeds();
-  }
+  const imgSrc = async (breed, subBreed) => {
+    let data;
+    if (!subBreed) {
+      const response = await fetch(
+        `https://dog.ceo/api/breed/${breed}/images/random`
+      );
+      data = await response.json();
+    } else {
+      const response = await fetch(
+        `https://dog.ceo/api/breed/${breed}/${subBreed}/images/random`
+      );
+      data = await response.json();
+    }
 
-  render() {
-    const breedListArr = Object.keys(this.state.breedList);
+    setSrc(data.message);
+    setSelectedBreedName(breed);
+    setSelectedSubbreedName(subBreed);
+  };
 
-    return (
-      <div
-        style={{
-          display: "flex",
+  const breedListArr = Object.keys(breedlist);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+      }}
+    >
+      <TextField
+        margin="dense"
+        id="outlined-basic"
+        label="Outlined"
+        variant="outlined"
+        onChange={(e) => {
+          setSearchText(e.target.value);
         }}
-      >
-        <TextField
-          id="outlined-basic"
-          label="Outlined"
-          variant="outlined"
-          value={this.state.searchText}
-          margin="dense"
-          onChange={(e) => {
-            this.setState({
-              searchText: e.target.value,
-            });
-          }}
-        />
-
-        {this.state.isLoading ? (
-          <CircularProgress
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 50,
-            }}
-          />
-        ) : (
+        value={searchText}
+      />
+      {isLoading ? (
+        <div className="loader"></div>
+      ) : (
+        <ul>
           <List
-            sx={{
-              width: "100%",
-              maxWidth: 360,
-              backgroundColor: "background.paper",
-            }}
+            sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
           >
             {breedListArr
-              .filter((breed) => breed.includes(this.state.searchText))
+              .filter((breed) => breed.includes(searchText))
               .map((breed) => {
+                const subBreedArr = breedlist[breed];
                 return (
-                  <React.Fragment>
+                  <React.Fragment key={breed}>
                     <ListItemButton
-                      component="li"
-                      key={breed}
-                      onClick={() => this.onListItemButtonClick(breed)}
                       style={{
-                        margin: 10,
                         cursor: "pointer",
-                        color: this.state.breedList[breed].length
-                          ? "red"
-                          : "green",
+                        margin: 10,
+                        color: subBreedArr.length ? "red" : null,
                       }}
                     >
-                      <ListItemText primary={breed} />
+                      <ListItemText
+                        primary={breed}
+                        onClick={() => imgSrc(breed)}
+                      />
+
+                      {!!subBreedArr.length &&
+                        (isOpenData[breed] ? (
+                          <ExpandLess
+                            onClick={() => {
+                              onItemClick(breed);
+                            }}
+                          />
+                        ) : (
+                          <ExpandMore
+                            onClick={() => {
+                              onItemClick(breed);
+                            }}
+                          />
+                        ))}
                     </ListItemButton>
-                    {this.state.breedList[breed].length ? (
+
+                    {subBreedArr.length ? (
                       <Collapse
-                        in={this.state.isOpen}
+                        in={isOpenData[breed]}
                         timeout="auto"
                         unmountOnExit
                       >
                         <List component="div" disablePadding>
-                          <ListItemButton sx={{ pl: 4 }}>
-                            <ListItemText primary="Starred" />
-                          </ListItemButton>
+                          {subBreedArr.map((subBreed) => {
+                            return (
+                              <ListItemButton
+                                onClick={() => imgSrc(breed, subBreed)}
+                                key={subBreed}
+                                sx={{ pl: 4 }}
+                              >
+                                <ListItemText primary={subBreed} />
+                              </ListItemButton>
+                            );
+                          })}
                         </List>
                       </Collapse>
                     ) : null}
@@ -131,39 +144,34 @@ class BreedList extends React.Component {
                 );
               })}
           </List>
-        )}
+        </ul>
+      )}
 
-        {this.state.src === "" ? null : (
-          //{/*<imgsrc={this.state.src}style={{ maxWidth: "100%", height: 500, marginTop: 30 }}alt={"Dog Pic"}/>*/}
-          <Card
-            sx={{
-              maxWidth: 345,
-              maxHeight: 300,
-              marginTop: 10,
-              position: "fixed",
-              right: 300,
-            }}
-          >
-            <CardMedia
-              component="img"
-              height="200"
-              image={this.state.src}
-              alt="green iguana"
-            />
-            <CardContent>
-              <Typography
-                gutterBottom
-                variant="h5"
-                component="div"
-                style={{ textAlign: "center" }}
-              >
-                {this.state.selectedBreedName}
-              </Typography>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    );
-  }
+      {src === "" ? null : (
+        // <img src={src} style={{width: 400, height: 400}} alt=""></img>
+        <Card sx={{ maxWidth: 345, height: 300 }}>
+          <CardMedia
+            component="img"
+            height="200"
+            image={src}
+            alt="green iguana"
+          />
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div">
+              {selectedBreedName}
+            </Typography>
+            <Typography gutterBottom variant="h6" component="div">
+              {selectedSubbreedName}
+            </Typography>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+  // render(){
+  //   const breedListArr = Object.keys(breedlist)
+
+  // }
 }
+
 export default BreedList;
