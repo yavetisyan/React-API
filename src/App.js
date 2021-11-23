@@ -1,11 +1,12 @@
+import { BrowserRouter } from "react-router-dom";
 import "./App.css";
-import BreedList from "./components/BeedLists";
+import Main from "./components/Main";
 
 function App() {
   return (
-    <div className="App">
-      <BreedList />
-    </div>
+    <BrowserRouter>
+      <Main />
+    </BrowserRouter>
   );
 }
 
