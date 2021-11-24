@@ -20,14 +20,14 @@ export default function Main() {
         </Link>
       </div>
       <Routes>
-        <Route path="/" />
         <Route index element={<Home />} />
+        <Route path="/Home" element={<Home />} />
         <Route path="/About" element={<About />} />
         <Route path="/asdasd" element={<div>asdasd</div>} />
         <Route path="/Contact" element={<Contact />} />
       </Routes>
 
-      {/*<BreedList />*/}
+      <BreedList />
     </div>
   );
 }

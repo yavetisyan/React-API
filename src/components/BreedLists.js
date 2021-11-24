@@ -1,25 +1,21 @@
-import {
-  Card,
-  CardContent,
-  List,
-  ListItemButton,
-  ListItemText,
-  Typography,
-} from "@mui/material";
-import CardMedia from "@mui/material/CardMedia";
+import { List, ListItemButton, ListItemText } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import "./BreedList.css";
 import TextField from "@mui/material/TextField";
 import Collapse from "@mui/material/Collapse";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ExpandLess from "@mui/icons-material/ExpandLess";
+import Breed from "./Breed";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
 function BreedList() {
+  const navigate = useNavigate();
+  console.log(navigate);
+
   const [breedlist, setBreedlist] = useState([]);
-  const [src, setSrc] = useState("");
+
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedBreedName, setSelectedBreedName] = useState("");
-  const [selectedSubbreedName, setSelectedSubbreedName] = useState("");
+
   const [searchText, setSearchText] = useState("");
   const [isOpenData, setIsOpenData] = useState({});
 
@@ -42,22 +38,23 @@ function BreedList() {
   };
 
   const imgSrc = async (breed, subBreed) => {
-    let data;
-    if (!subBreed) {
-      const response = await fetch(
-        `https://dog.ceo/api/breed/${breed}/images/random`
-      );
-      data = await response.json();
-    } else {
-      const response = await fetch(
-        `https://dog.ceo/api/breed/${breed}/${subBreed}/images/random`
-      );
-      data = await response.json();
-    }
+    navigate(`Breed/${breed}`);
 
-    setSrc(data.message);
-    setSelectedBreedName(breed);
-    setSelectedSubbreedName(subBreed);
+    //let data;
+    //if (!subBreed) {
+    //  const response = await fetch(
+    //    `https://dog.ceo/api/breed/${breed}/images/random`
+    //  );
+    //  data = await response.json();
+    //} else {
+    //  const response = await fetch(
+    //    `https://dog.ceo/api/breed/${breed}/${subBreed}/images/random`
+    //  );
+    //  data = await response.json();
+    //}
+    //setSrc(data.message);
+    //setSelectedBreedName(breed);
+    //setSelectedSubbreedName(subBreed);
   };
 
   const breedListArr = Object.keys(breedlist);
@@ -66,7 +63,6 @@ function BreedList() {
     <div
       style={{
         display: "flex",
-        justifyContent: "space-between",
       }}
     >
       <TextField
@@ -98,22 +94,24 @@ function BreedList() {
                         margin: 10,
                         color: subBreedArr.length ? "red" : null,
                       }}
+                      onClick={() => imgSrc(breed)}
                     >
-                      <ListItemText
-                        primary={breed}
-                        onClick={() => imgSrc(breed)}
-                      />
+                      <ListItemText primary={breed} />
+
+                      {/*<Link to={`Breed/${breed}`}> {breed} </Link>*/}
 
                       {!!subBreedArr.length &&
                         (isOpenData[breed] ? (
                           <ExpandLess
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               onItemClick(breed);
                             }}
                           />
                         ) : (
                           <ExpandMore
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               onItemClick(breed);
                             }}
                           />
@@ -147,32 +145,11 @@ function BreedList() {
           </List>
         </ul>
       )}
-
-      {src === "" ? null : (
-        // <img src={src} style={{width: 400, height: 400}} alt=""></img>
-        <Card sx={{ maxWidth: 345, height: 300}}>
-          <CardMedia
-            component="img"
-            height="200"
-            image={src}
-            alt="green iguana"
-          />
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              {selectedBreedName}
-            </Typography>
-            <Typography gutterBottom variant="h6" component="div">
-              {selectedSubbreedName}
-            </Typography>
-          </CardContent>
-        </Card>
-      )}
+      <Routes>
+        <Route path={`Breed/:breed`} element={<Breed />} />
+      </Routes>
     </div>
   );
-  // render(){
-  //   const breedListArr = Object.keys(breedlist)
-
-  // }
 }
 
 export default BreedList;
