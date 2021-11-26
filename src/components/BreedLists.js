@@ -6,7 +6,7 @@ import Collapse from "@mui/material/Collapse";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import Breed from "./Breed";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 
 function BreedList() {
   const navigate = useNavigate();
@@ -38,23 +38,11 @@ function BreedList() {
   };
 
   const imgSrc = async (breed, subBreed) => {
-    navigate(`Breed/${breed}`);
-
-    //let data;
-    //if (!subBreed) {
-    //  const response = await fetch(
-    //    `https://dog.ceo/api/breed/${breed}/images/random`
-    //  );
-    //  data = await response.json();
-    //} else {
-    //  const response = await fetch(
-    //    `https://dog.ceo/api/breed/${breed}/${subBreed}/images/random`
-    //  );
-    //  data = await response.json();
-    //}
-    //setSrc(data.message);
-    //setSelectedBreedName(breed);
-    //setSelectedSubbreedName(subBreed);
+    if (!subBreed) {
+      navigate(`Breed/${breed}`);
+    } else {
+      navigate(`Breed/${breed}/${subBreed}`);
+    }
   };
 
   const breedListArr = Object.keys(breedlist);
@@ -80,7 +68,7 @@ function BreedList() {
       ) : (
         <ul>
           <List
-            sx={{ width: "100%", maxWidth: 200, bgcolor: "background.paper" }}
+            sx={{ width: "100%", maxWidth: 200, bgcolor: "background.paper", overflowY:'auto ', maxHeight:700 }}
           >
             {breedListArr
               .filter((breed) => breed.includes(searchText))
@@ -147,6 +135,7 @@ function BreedList() {
       )}
       <Routes>
         <Route path={`Breed/:breed`} element={<Breed />} />
+        <Route path={`Breed/:breed/:subBreed`} element={<Breed />} />
       </Routes>
     </div>
   );
